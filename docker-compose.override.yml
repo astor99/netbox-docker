@@ -8,7 +8,7 @@ services:
     - netbox-scripts-files:/opt/netbox/netbox/scripts:z,rw
     healthcheck:
       retries: 15
-  deploy:
+    deploy:
        labels:
         - traefik.enable=true
         - traefik.docker.network=traefik-public
@@ -21,7 +21,7 @@ services:
         - traefik.http.routers.netbox-https.tls=true
         - traefik.http.routers.netbox-https.tls.certresolver=le
         - traefik.http.services.netbox.loadbalancer.server.port=8080
-  networks:
+    networks:
     - traefik-public
   netbox-worker:
     volumes:
