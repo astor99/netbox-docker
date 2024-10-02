@@ -1,6 +1,6 @@
 services:
   netbox: &netbox
-    #image: netboxcommunity/netbox
+    image: netboxcommunity/netbox
     env_file: env/netbox.env
     user: "unit:root"
     healthcheck:
