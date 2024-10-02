@@ -106,8 +106,6 @@ volumes:
   netbox:
     driver: glusterfs
     name: "cloudtest/netbox"
-    
-volumes:
   netbox-media-files:
     driver: glusterfs
     name: "cloudtest/netbox/media"
