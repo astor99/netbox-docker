@@ -30,7 +30,7 @@ services:
     - internal-network
     - traefik-public
     volumes:
-      - netbox-config:/etc/netbox/config:z,ro
+      - netbox-config:/etc/netbox/config/configuration:z,ro
       - netbox-media-files:/opt/netbox/netbox/media:rw
       - netbox-reports-files:/opt/netbox/netbox/reports:rw
       - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
@@ -46,7 +46,7 @@ services:
       timeout: 3s
       interval: 15s
     volumes:
-      - netbox:/etc/netbox/config:z,ro
+      - netbox:/etc/netbox/config/configuration:z,ro
     networks:
       - internal-network
     
@@ -60,7 +60,7 @@ services:
       timeout: 3s
       interval: 15s
     volumes:
-      - netbox-config:/etc/netbox/config:z,ro   
+      - netbox-config:/etc/netbox/config/configuration:z,ro   
     networks:
       - internal-network
     
