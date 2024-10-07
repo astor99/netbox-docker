@@ -30,7 +30,7 @@ services:
     - internal-network
     - traefik-public
     volumes:
-      - netbox:/etc/netbox/config:z,ro
+      - netbox-config:/etc/netbox/config:z,ro
       - netbox-media-files:/opt/netbox/netbox/media:rw
       - netbox-reports-files:/opt/netbox/netbox/reports:rw
       - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
@@ -60,7 +60,7 @@ services:
       timeout: 3s
       interval: 15s
     volumes:
-      - netbox:/etc/netbox/config:z,ro   
+      - netbox-config:/etc/netbox/config:z,ro   
     networks:
       - internal-network
     
@@ -116,9 +116,9 @@ networks:
     traefik-public:
         external: true
 volumes:
-  netbox:
+  netbox-config:
     driver: glusterfs
-    name: "cloudtest/netbox"
+    name: "cloudtest/netbox/configuration"
   netbox-media-files:
     driver: glusterfs
     name: "cloudtest/netbox/media"
