@@ -6,7 +6,7 @@ services:
       - redis
       - redis-cache
     env_file: env/netbox.env
-    # user: "unit:root"
+    user: "unit:root"
     healthcheck:
       retries: 15
       test: curl -f http://localhost:8080/login/ || exit 1
@@ -30,7 +30,7 @@ services:
     - internal-network
     - traefik-public
     volumes:
-      - ./configuration:/etc/netbox/config:z,ro
+      - netbox-config:/etc/netbox/config:z,ro
       - netbox-media-files:/opt/netbox/netbox/media:rw
       - netbox-reports-files:/opt/netbox/netbox/reports:rw
       - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
