@@ -41,8 +41,10 @@ services:
       start_period: 20s
       timeout: 3s
       interval: 15s
+    volumes:
+      - netbox:/etc/netbox/config:z,ro
     networks:
-    - internal-network
+      - internal-network
     
   netbox-housekeeping:
     <<: *netbox
@@ -53,8 +55,10 @@ services:
       start_period: 20s
       timeout: 3s
       interval: 15s
+    volumes:
+      - netbox:/etc/netbox/config:z,ro   
     networks:
-    - internal-network
+      - internal-network
     
   # postgres
   postgres:
