@@ -27,7 +27,7 @@ services:
         - traefik.http.routers.netbox-https.tls.certresolver=le
         - traefik.http.services.netbox.loadbalancer.server.port=8080
     networks:
-    - internal-network
+    #- internal-network
     - traefik-public
     volumes:
       - netbox-config:/etc/netbox/config:z,ro
@@ -45,8 +45,8 @@ services:
       start_period: 20s
       timeout: 3s
       interval: 15s
-    networks:
-      - internal-network
+    #networks:
+    #  - internal-network
     
   netbox-housekeeping:
     <<: *netbox
@@ -57,8 +57,8 @@ services:
       start_period: 20s
       timeout: 3s
       interval: 15s
-    networks:
-      - internal-network
+    #networks:
+    #  - internal-network
     
   # postgres
   postgres:
@@ -72,8 +72,8 @@ services:
     env_file: env/postgres.env
     volumes:
       - netbox-postgres-data:/var/lib/postgresql/data
-    networks:
-      - internal-network
+    #networks:
+    #  - internal-network
     
   # redis
   redis:
@@ -91,8 +91,8 @@ services:
     env_file: env/redis.env
     volumes:
       - netbox-redis-data:/data
-    networks:
-      - internal-network
+    #networks:
+    #  - internal-network
       
   redis-cache:
     image: docker.io/valkey/valkey:8.0-alpine
@@ -104,11 +104,11 @@ services:
     env_file: env/redis-cache.env
     volumes:
       - netbox-redis-cache-data:/data
-    networks:
-      - internal-network
+    #networks:
+    #  - internal-network
     
 networks:
-    internal-network:
+    #internal-network:
     traefik-public:
         external: true
 volumes:
