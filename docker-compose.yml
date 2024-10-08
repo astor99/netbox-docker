@@ -83,15 +83,24 @@ services:
       - netbox-redis-cache-data:/data
 
 volumes:
+  netbox-config:
+    driver: glusterfs
+    name: "cloudtest/netbox"
   netbox-media-files:
-    driver: local
+    driver: glusterfs
+    name: "cloudtest/netbox/media"
   netbox-postgres-data:
-    driver: local
+    driver: glusterfs
+    name: "cloudtest/netbox/postgres-data"
   netbox-redis-cache-data:
-    driver: local
+    driver: glusterfs
+    name: "cloudtest/netbox/redis-cache-data"
   netbox-redis-data:
-    driver: local
+    driver: glusterfs
+    name: "cloudtest/netbox/redis-data"
   netbox-reports-files:
-    driver: local
+    driver: glusterfs
+    name: "cloudtest/netbox/reports-data"
   netbox-scripts-files:
-    driver: local
+    driver: glusterfs
+    name: "cloudtest/netbox/scripts-data"
