@@ -13,3 +13,8 @@ services:
         - traefik.http.routers.netbox-https.tls=true
         - traefik.http.routers.netbox-https.tls.certresolver=le
         - traefik.http.services.netbox.loadbalancer.server.port=8080
+  network:
+     - traefik-public
+networks:
+    traefik-public:
+        external: true
