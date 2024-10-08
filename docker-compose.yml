@@ -18,7 +18,7 @@ services:
       - netbox-reports-files:/opt/netbox/netbox/reports:rw
       - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
     networks:
-      - internal-network  
+      - netbox-network  
   netbox-worker:
     <<: *netbox
     depends_on:
@@ -33,7 +33,7 @@ services:
       timeout: 3s
       interval: 15s
     networks:
-      - internal-network
+      - netbox-network
   
   netbox-housekeeping:
     <<: *netbox
@@ -47,7 +47,7 @@ services:
       timeout: 3s
       interval: 15s
     networks:
-      - internal-network
+      - netbox-network
 
   # postgres
   postgres:
@@ -62,7 +62,7 @@ services:
     volumes:
       - netbox-postgres-data:/var/lib/postgresql/data
     networks:
-      - internal-network
+      - netbox-network
       
   # redis
   redis:
@@ -81,7 +81,7 @@ services:
     volumes:
       - netbox-redis-data:/data
     networks:
-      - internal-network
+      - netbox-network
   
   redis-cache:
     image: docker.io/valkey/valkey:8.0-alpine
@@ -94,11 +94,12 @@ services:
     volumes:
       - netbox-redis-cache-data:/data
     networks:
-      - internal-network
+      - netbox-network
 
 
 networks:
-    internal-network:
+    netbox-network:
+    
     
 volumes:
   netbox-config:
