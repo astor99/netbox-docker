@@ -13,6 +13,9 @@ services:
         - traefik.http.routers.netbox-https.tls=true
         - traefik.http.routers.netbox-https.tls.certresolver=le
         - traefik.http.services.netbox.loadbalancer.server.port=8080
+        - traefik.http.middlewares.netbox-ipwhitelist.ipwhitelist.sourcerange=159.149.128.0/17
+        - traefik.http.routers.netbox-https.middlewares=netbox-ipwhitelist
+        
     networks:
         - traefik-public
         - netbox-network
