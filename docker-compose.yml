@@ -1,10 +1,6 @@
 services:
-  netbox: &netbox
+  netbox: netbox
     image: docker.io/netboxcommunity/netbox:latest
-    depends_on:
-      - postgres
-      - redis
-      - redis-cache
     env_file: env/netbox.env
     user: "unit:root"
     healthcheck:
@@ -35,7 +31,6 @@ services:
       - netbox-reports-files:/opt/netbox/netbox/reports:rw
       - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
   netbox-worker:
-    <<: *netbox
     command:
       - /opt/netbox/venv/bin/python
       - /opt/netbox/netbox/manage.py
@@ -49,7 +44,6 @@ services:
       - netbox-network
     
   netbox-housekeeping:
-    <<: *netbox
     command:
       - /opt/netbox/housekeeping.sh
     healthcheck:
