@@ -52,6 +52,8 @@ services:
   # postgres
   postgres:
     image: docker.io/postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     healthcheck:
       test: pg_isready -q -t 2 -d $$POSTGRES_DB -U $$POSTGRES_USER
       start_period: 20s
