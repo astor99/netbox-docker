@@ -1,5 +1,6 @@
+
 services:
-  netbox: netbox
+  netbox:
     image: docker.io/netboxcommunity/netbox:latest
     env_file: env/netbox.env
     user: "unit:root"
@@ -23,14 +24,16 @@ services:
         - traefik.http.routers.netbox-https.tls.certresolver=le
         - traefik.http.services.netbox.loadbalancer.server.port=8080
     networks:
-    - netbox-network
-    - traefik-public
+      - netbox-network
+      - traefik-public
     volumes:
       - netbox-config:/etc/netbox/config:z,ro
       - netbox-media-files:/opt/netbox/netbox/media:rw
       - netbox-reports-files:/opt/netbox/netbox/reports:rw
       - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
+
   netbox-worker:
+    image: docker.io/netboxcommunity/netbox:latest
     command:
       - /opt/netbox/venv/bin/python
       - /opt/netbox/netbox/manage.py
@@ -42,8 +45,9 @@ services:
       interval: 15s
     networks:
       - netbox-network
-    
+
   netbox-housekeeping:
+    image: docker.io/netboxcommunity/netbox:latest
     command:
       - /opt/netbox/housekeeping.sh
     healthcheck:
@@ -53,7 +57,7 @@ services:
       interval: 15s
     networks:
       - netbox-network
-    
+
   # postgres
   postgres:
     image: docker.io/postgres:16-alpine
@@ -68,16 +72,16 @@ services:
       - netbox-postgres-data:/var/lib/postgresql/data
     networks:
       - netbox-network
-    
+
   # redis
   redis:
-    image: docker.io/valkey/valkey:8.0-alpine
+    image: docker.io/redis:8.0-alpine
     command:
       - sh
       - -c # this is to evaluate the $REDIS_PASSWORD from the env
-      - valkey-server --appendonly yes --requirepass $$REDIS_PASSWORD ## $$ because of docker-compose
+      - redis-server --appendonly yes --requirepass $$REDIS_PASSWORD ## $$ because of docker-compose
     healthcheck: &redis-healthcheck
-      test: '[ $$(valkey-cli --pass "$${REDIS_PASSWORD}" ping) = ''PONG'' ]'
+      test: '[ $$(redis-cli --pass "$${REDIS_PASSWORD}" ping) = ''PONG'' ]'
       start_period: 5s
       timeout: 3s
       interval: 1s
@@ -87,25 +91,26 @@ services:
       - netbox-redis-data:/data
     networks:
       - netbox-network
-      
+
   redis-cache:
-    image: docker.io/valkey/valkey:8.0-alpine
+    image: docker.io/redis:8.0-alpine
     command:
       - sh
       - -c # this is to evaluate the $REDIS_PASSWORD from the env
-      - valkey-server --requirepass $$REDIS_PASSWORD ## $$ because of docker-compose
+      - redis-server --requirepass $$REDIS_PASSWORD ## $$ because of docker-compose
     healthcheck: *redis-healthcheck
     env_file: env/redis-cache.env
     volumes:
       - netbox-redis-cache-data:/data
     networks:
       - netbox-network
-    
+
 networks:
-    netbox-network:
-        attachable: true
-    traefik-public:
-        external: true
+  netbox-network:
+    attachable: true
+  traefik-public:
+    external: true
+
 volumes:
   netbox-config:
     driver: glusterfs
