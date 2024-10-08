@@ -1,40 +1,27 @@
-version: '3.4'
-
 services:
-  netbox:
-    image: docker.io/netboxcommunity/netbox:latest
+  netbox: &netbox
+    image: docker.io/netboxcommunity/netbox:${VERSION-v4.1-3.0.2}
+    depends_on:
+      - postgres
+      - redis
+      - redis-cache
     env_file: env/netbox.env
     user: "unit:root"
     healthcheck:
-      retries: 15
       test: curl -f http://localhost:8080/login/ || exit 1
       start_period: 90s
       timeout: 3s
       interval: 15s
-    deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.docker.network=traefik-public
-        - traefik.constraint-label=traefik-public
-        - traefik.http.routers.netbox-http.rule=Host(`opendcimtest.di.unimi.it`)
-        - traefik.http.routers.netbox-http.entrypoints=http
-        - traefik.http.routers.netbox-http.middlewares=https-redirect
-        - traefik.http.routers.netbox-https.rule=Host(`opendcimtest.di.unimi.it`)
-        - traefik.http.routers.netbox-https.entrypoints=https
-        - traefik.http.routers.netbox-https.tls=true
-        - traefik.http.routers.netbox-https.tls.certresolver=le
-        - traefik.http.services.netbox.loadbalancer.server.port=8080
-    networks:
-      - netbox-network
-      - traefik-public
     volumes:
-      - netbox-config:/etc/netbox/config:z,ro
+      - ./configuration:/etc/netbox/config:z,ro
       - netbox-media-files:/opt/netbox/netbox/media:rw
       - netbox-reports-files:/opt/netbox/netbox/reports:rw
       - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
-
   netbox-worker:
-    image: docker.io/netboxcommunity/netbox:latest
+    <<: *netbox
+    depends_on:
+      netbox:
+        condition: service_healthy
     command:
       - /opt/netbox/venv/bin/python
       - /opt/netbox/netbox/manage.py
@@ -44,11 +31,11 @@ services:
       start_period: 20s
       timeout: 3s
       interval: 15s
-    networks:
-      - netbox-network
-
   netbox-housekeeping:
-    image: docker.io/netboxcommunity/netbox:latest
+    <<: *netbox
+    depends_on:
+      netbox:
+        condition: service_healthy
     command:
       - /opt/netbox/housekeeping.sh
     healthcheck:
@@ -56,12 +43,10 @@ services:
       start_period: 20s
       timeout: 3s
       interval: 15s
-    networks:
-      - netbox-network
 
   # postgres
   postgres:
-    image: docker.io/postgres:latest
+    image: docker.io/postgres:16-alpine
     healthcheck:
       test: pg_isready -q -t 2 -d $$POSTGRES_DB -U $$POSTGRES_USER
       start_period: 20s
@@ -71,18 +56,16 @@ services:
     env_file: env/postgres.env
     volumes:
       - netbox-postgres-data:/var/lib/postgresql/data
-    networks:
-      - netbox-network
 
   # redis
   redis:
-    image: docker.io/redis:latest
+    image: docker.io/valkey/valkey:8.0-alpine
     command:
       - sh
       - -c # this is to evaluate the $REDIS_PASSWORD from the env
-      - redis-server --appendonly yes --requirepass $$REDIS_PASSWORD ## $$ because of docker-compose
+      - valkey-server --appendonly yes --requirepass $$REDIS_PASSWORD ## $$ because of docker-compose
     healthcheck: &redis-healthcheck
-      test: '[ $$(redis-cli --pass "$${REDIS_PASSWORD}" ping) = ''PONG'' ]'
+      test: '[ $$(valkey-cli --pass "$${REDIS_PASSWORD}" ping) = ''PONG'' ]'
       start_period: 5s
       timeout: 3s
       interval: 1s
@@ -90,47 +73,27 @@ services:
     env_file: env/redis.env
     volumes:
       - netbox-redis-data:/data
-    networks:
-      - netbox-network
-
   redis-cache:
-    image: docker.io/redis:latest
+    image: docker.io/valkey/valkey:8.0-alpine
     command:
       - sh
       - -c # this is to evaluate the $REDIS_PASSWORD from the env
-      - redis-server --requirepass $$REDIS_PASSWORD ## $$ because of docker-compose
+      - valkey-server --requirepass $$REDIS_PASSWORD ## $$ because of docker-compose
     healthcheck: *redis-healthcheck
     env_file: env/redis-cache.env
     volumes:
       - netbox-redis-cache-data:/data
-    networks:
-      - netbox-network
-
-networks:
-  netbox-network:
-    attachable: true
-  traefik-public:
-    external: true
 
 volumes:
-  netbox-config:
-    driver: glusterfs
-    name: "cloudtest/netbox"
   netbox-media-files:
-    driver: glusterfs
-    name: "cloudtest/netbox/media"
+    driver: local
   netbox-postgres-data:
-    driver: glusterfs
-    name: "cloudtest/netbox/postgres-data"
+    driver: local
   netbox-redis-cache-data:
-    driver: glusterfs
-    name: "cloudtest/netbox/redis-cache-data"
+    driver: local
   netbox-redis-data:
-    driver: glusterfs
-    name: "cloudtest/netbox/redis-data"
+    driver: local
   netbox-reports-files:
-    driver: glusterfs
-    name: "cloudtest/netbox/reports-data"
+    driver: local
   netbox-scripts-files:
-    driver: glusterfs
-    name: "cloudtest/netbox/scripts-data"
+    driver: local
